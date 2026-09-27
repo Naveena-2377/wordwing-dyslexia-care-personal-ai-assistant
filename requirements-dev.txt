@@ -1,0 +1,9 @@
+-r requirements.txt
+pytest>=8.3
+pytest-cov>=5.0
+ruff>=0.6
+black>=24.8
+mypy>=1.11
+jupyter>=1.0
+ipykernel>=6.29
+pre-commit>=3.8

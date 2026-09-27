@@ -1,0 +1,16 @@
+project: dyslexia-reading-assistant
+seed: 42
+device: auto            # auto | cpu | cuda
+paths:
+  data_raw: data/raw
+  data_interim: data/interim
+  data_processed: data/processed
+  data_synthetic: data/synthetic
+  models: models
+  reports: reports
+logging:
+  level: INFO
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+tracking:
+  backend: mlflow
+  experiment: dyslexia-assistant

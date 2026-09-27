@@ -1,0 +1,32 @@
+# Module 1 - handwriting letter / reversal CNN
+data:
+  processed_dir: data/processed/m1_handwriting
+  classes: [normal, reversal, corrected]
+  image_size: 32
+  grayscale: true
+  val_split: 0.15
+  test_split: 0.15
+pretrain:
+  enabled: true
+  dataset: data/processed/m1_emnist    # EMNIST letters for pretraining
+  epochs: 5
+model:
+  arch: small_cnn            # small_cnn | resnet18
+  dropout: 0.3
+  num_classes: 3
+train:
+  epochs: 30
+  batch_size: 128
+  lr: 0.001
+  optimizer: adamw
+  weight_decay: 0.0001
+  scheduler: cosine
+  early_stopping_patience: 3
+  class_weights: balanced
+augment:
+  rotation_deg: 8
+  translate: 0.08
+  scale: [0.9, 1.1]
+  horizontal_flip: false     # NEVER flip - flipping creates fake reversals
+output:
+  dir: models/m1_handwriting_cnn

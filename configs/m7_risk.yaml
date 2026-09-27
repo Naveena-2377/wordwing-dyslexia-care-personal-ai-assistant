@@ -1,0 +1,26 @@
+# Module 7 - reading risk / severity scoring
+data:
+  features_csv: data/processed/m7_risk/session_features.csv
+features:
+  - wpm
+  - accuracy
+  - error_rate
+  - substitution_rate
+  - omission_rate
+  - reversal_rate
+  - mean_pause_ms
+  - pause_count_per_100w
+  - long_word_error_rate
+  - self_correction_rate
+model:
+  arch: xgboost
+  n_estimators: 400
+  max_depth: 4
+  learning_rate: 0.05
+  subsample: 0.9
+calibration:
+  method: isotonic
+explain:
+  shap: true
+output:
+  dir: models/m7_risk_score

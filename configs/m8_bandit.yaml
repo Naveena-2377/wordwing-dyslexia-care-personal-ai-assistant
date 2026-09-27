@@ -1,0 +1,19 @@
+# Module 8 - adaptive reading coach (exercise selection)
+algorithm: thompson_sampling   # thompson_sampling | ucb1 | epsilon_greedy
+arms:
+  - phoneme_blending
+  - bd_pq_discrimination
+  - sight_word_drill
+  - syllable_chunking
+  - fluency_repeated_reading
+  - comprehension_qa
+reward:
+  definition: normalized_accuracy_gain
+  window_sessions: 3
+cold_start:
+  prior_alpha: 1.0
+  prior_beta: 1.0
+  seed_from_error_profile: true
+safety:
+  max_consecutive_same_arm: 3
+  min_success_rate_before_level_up: 0.8

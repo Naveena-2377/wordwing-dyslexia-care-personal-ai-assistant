@@ -1,0 +1,22 @@
+# Module 3 - sentence simplification
+data:
+  dataset: data/processed/m3_wikilarge
+  max_source_len: 96
+  max_target_len: 96
+model:
+  base: t5-small          # t5-small | facebook/bart-base
+  fine_tune: true
+train:
+  epochs: 3
+  batch_size: 16
+  lr: 0.00005
+  gradient_accumulation: 2
+  fp16: true
+decode:
+  num_beams: 4
+  max_new_tokens: 80
+constraints:
+  target_grade_level: 3     # Flesch-Kincaid target for output
+  max_words_per_sentence: 12
+output:
+  dir: models/m3_simplifier

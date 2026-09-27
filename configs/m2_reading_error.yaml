@@ -1,0 +1,43 @@
+# Module 2 - spoken reading error-type classifier
+data:
+  real_dir: data/processed/m2_nnces
+  synthetic_dir: data/synthetic/reading_errors
+  val_split: 0.15
+  test_split: 0.15
+  real_test_only: true      # hold out real recordings for the final test set
+asr:
+  backend: whisper
+  model: small
+  language: en
+  word_timestamps: true
+alignment:
+  method: needleman_wunsch  # word-level alignment of ASR output vs target text
+  phoneme_backoff: true
+labels:
+  - correct
+  - substitution
+  - omission
+  - insertion
+  - reversal          # b/d, p/q style confusion surfacing in speech
+  - slow_decoding
+  - repetition
+  - mispronunciation
+features:
+  window_words: 5
+  use_phoneme_edit_distance: true
+  use_duration_features: true
+  use_pause_features: true
+  use_confidence: true
+model:
+  arch: bilstm            # bilstm | transformer | random_forest
+  hidden_size: 128
+  num_layers: 2
+  dropout: 0.3
+train:
+  epochs: 25
+  batch_size: 32
+  lr: 0.0005
+  class_weights: balanced
+  early_stopping_patience: 5
+output:
+  dir: models/m2_reading_error

@@ -1,0 +1,31 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.ipynb_checkpoints/
+# data + weights are never committed
+data/raw/*
+data/interim/*
+data/processed/*
+data/synthetic/*
+!**/.gitkeep
+models/**/*.pt
+models/**/*.pth
+models/**/*.onnx
+models/**/*.pkl
+models/**/*.joblib
+reports/figures/*
+reports/metrics/*
+node_modules/
+frontend/dist/
+mlruns/
+.DS_Store
+
+.env
+wordwing.db
+frontend/.env
+
+# Large trained model weights
+models/m3_simplifier/checkpoint-*/model.safetensors
+models/m3_simplifier/model.safetensors
