@@ -8,6 +8,7 @@ import ReadAloud from "./components/ReadAloud";
 import HandwritingCheck from "./components/HandwritingCheck";
 import "./styles/theme.css";
 import Mascot from "./components/Mascot";
+import Quiz from "./components/Quiz";
 
 const TABS = [
   { id: "session", label: "Reading session", icon: "🎙️" },
@@ -15,6 +16,7 @@ const TABS = [
   { id: "readaloud", label: "Read a page", icon: "📖" },
   { id: "handwriting", label: "Handwriting check", icon: "✏️" },
   { id: "simplify", label: "Simplify text", icon: "✍️" },
+    { id: "quiz", label: "Quiz time", icon: "🧩" },
 ];
 
 const TITLES = {
@@ -23,6 +25,7 @@ const TITLES = {
   readaloud: ["Read a page", "Upload a page, hear it read aloud, break tricky words into syllables."],
   handwriting: ["Handwriting check", "Upload a handwritten image"],
   simplify: ["Simplify text", "Rewrite complex sentences in simpler words."],
+  quiz: ["Quiz time", "Turn any story or worksheet into a fun quiz."],
 };
 
 const TINTS = [
@@ -141,6 +144,7 @@ function MainApp() {
           {tab === "readaloud" && <ReadAloud />}
           {tab === "handwriting" && <HandwritingCheck />}
           {tab === "simplify" && <Simplify />}
+          {tab === "quiz" && <Quiz />}
         </div>
       </div>
     </div>

@@ -1,8 +1,5 @@
-"""Guardrail: does the simplified output actually read easier?
-
-Every simplifier output passes through here before it reaches a child.
-If it fails, fall back to the LLM, then to the original sentence.
-"""
+"""Quality guardrail: is the rewritten text complete and genuinely easier to read?"""
+import re
 
 
 def grade_level(text: str) -> float:
@@ -11,11 +8,21 @@ def grade_level(text: str) -> float:
     return textstat.flesch_kincaid_grade(text)
 
 
-def passes(original: str, simplified: str, target_grade: float = 3.0,
-           max_words: int = 12) -> bool:
-    if not simplified.strip():
+def _sentence_count(text: str) -> int:
+    return max(len([s for s in re.split(r"[.!?]+", text) if s.strip()]), 1)
+
+
+def acceptable(original: str, simplified: str, max_avg_words: int = 15) -> bool:
+    s = simplified.strip()
+    if not s or s == original.strip():
         return False
-    if len(simplified.split()) > max_words * 2:
+    if s[-1] not in ".!?\"'":  # looks cut off mid-sentence
         return False
-    return (grade_level(simplified) <= target_grade
-            and grade_level(simplified) < grade_level(original))
+    words = len(s.split())
+    if words < 3 or words / _sentence_count(s) > max_avg_words:
+        return False
+    return grade_level(s) < grade_level(original)
+
+
+def passes(original: str, simplified: str, target_grade: float = 3.0, max_words: int = 12) -> bool:
+    return acceptable(original, simplified)

@@ -1,4 +1,4 @@
-const BASE = "http://localhost:8000";
+const BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
 function authHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -73,5 +73,22 @@ export async function checkHandwriting(file) {
   form.append("image", file);
   const res = await fetch(`${BASE}/handwriting/check`, { method: "POST", body: form });
   if (!res.ok) throw new Error(`Handwriting check failed (${res.status})`);
+  return res.json();
+}
+
+export async function checkHandwritingPage(file) {
+  const form = new FormData();
+  form.append("image", file);
+  const res = await fetch(`${BASE}/handwriting/check-page`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`Page check failed (${res.status})`);
+  return res.json();
+}
+
+export async function generateQuiz(file, numQuestions = 5) {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("num_questions", numQuestions);
+  const res = await fetch(`${BASE}/quiz/generate`, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`Quiz generation failed (${res.status})`);
   return res.json();
 }

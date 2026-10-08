@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ocrImage, getSyllables } from "../api";
 
 export default function ReadAloud() {
@@ -7,9 +7,11 @@ export default function ReadAloud() {
   const [loadingOcr, setLoadingOcr] = useState(false);
   const [error, setError] = useState(null);
   const [speaking, setSpeaking] = useState(false);
+  const [activeWord, setActiveWord] = useState(-1);
 
   const [word, setWord] = useState("");
   const [syllables, setSyllables] = useState(null);
+  const timersRef = useRef([]);
 
   async function handleUpload(e) {
     const f = e.target.files[0];
@@ -27,14 +29,52 @@ export default function ReadAloud() {
     }
   }
 
+  function buildWordOffsets(str) {
+    const out = [];
+    const re = /\S+/g;
+    let m;
+    while ((m = re.exec(str)) !== null) out.push(m[0]);
+    return out;
+  }
+
+  function clearTimers() {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  }
+
+  function startHighlightTimer(words, rate) {
+    clearTimers();
+    const baseMs = 520 / rate; // ~150 wpm at rate 1
+    let elapsed = 0;
+    words.forEach((w, i) => {
+      const dur = baseMs * (0.6 + 0.4 * Math.min(w.length, 10) / 5);
+      timersRef.current.push(setTimeout(() => setActiveWord(i), elapsed));
+      elapsed += dur;
+    });
+  }
+
   function speak(str) {
     if (!str.trim() || !("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
+    const words = buildWordOffsets(str);
+    setActiveWord(-1);
+
     const utter = new SpeechSynthesisUtterance(str);
     utter.rate = 0.85;
-    utter.onstart = () => setSpeaking(true);
-    utter.onend = () => setSpeaking(false);
+    utter.onstart = () => {
+      setSpeaking(true);
+      startHighlightTimer(words, utter.rate);
+    };
+    utter.onend = () => { setSpeaking(false); setActiveWord(-1); clearTimers(); };
+    utter.onerror = () => { setSpeaking(false); setActiveWord(-1); clearTimers(); };
     window.speechSynthesis.speak(utter);
+  }
+
+  function stopSpeaking() {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+    setActiveWord(-1);
+    clearTimers();
   }
 
   async function handleSyllables() {
@@ -48,6 +88,8 @@ export default function ReadAloud() {
     }
   }
 
+  const displayWords = text ? buildWordOffsets(text) : [];
+
   return (
     <div>
       <div className="card">
@@ -59,21 +101,35 @@ export default function ReadAloud() {
 
       {text && (
         <div className="card">
-          <label htmlFor="extracted">Extracted text</label>
+          <label htmlFor="extracted">Extracted text (edit if OCR made mistakes)</label>
           <textarea
             id="extracted"
             rows={4}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => { setText(e.target.value); stopSpeaking(); }}
           />
+
+          <div style={{ marginTop: 14 }}>
+            <label>Read-along</label>
+            <div className="result-line">
+              {displayWords.map((w, i) => (
+                <span
+                  key={i}
+                  className="word"
+                  style={i === activeWord ? { background: "var(--primary)", color: "white" } : undefined}
+                >
+                  {w}
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div className="row" style={{ marginTop: 14 }}>
             <button className="btn" onClick={() => speak(text)} disabled={speaking}>
               {speaking ? "Reading..." : "🔊 Read aloud"}
             </button>
             {speaking && (
-              <button className="btn btn-outline" onClick={() => window.speechSynthesis.cancel()}>
-                Stop
-              </button>
+              <button className="btn btn-outline" onClick={stopSpeaking}>Stop</button>
             )}
           </div>
         </div>
